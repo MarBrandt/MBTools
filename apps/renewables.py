@@ -36,6 +36,7 @@ def app():
                       <li>Vorlauftemperatur (Wärmenetz)</li>
                     </ul>     
                 """, unsafe_allow_html=True)
+                
 
 # %% Umgebungsdaten
 
@@ -288,4 +289,29 @@ def app():
             plotly_fig.update_xaxes(visible=False)
             st.plotly_chart(plotly_fig, use_container_width=True)
     
+    
+    try:
+        if "wind_data" and "pv_st_output" and "Umgebungstemperatur" and "Vorlauftemperatur" not in st.session_state:
+            st.markdown("<center>Du kannst hier alle Daten gesammelt herunterladen, sobald alle Berechnungen durchgeführt wurden</center>", unsafe_allow_html=True)
+        else:
+            c1, c2, c3, c4, c5 = st.columns(5)
+            
+            df = pd.DataFrame({"Datum": st.session_state["date_time_index"],
+                              "Umgebungstemperatur in °C": st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
+                              "Windgeschwindigkeit in m/s": st.session_state["wind_data"]["Windgeschwindigkeit in m/s"],
+                              "Vorlauftemperatur in °C": st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"],
+                              "Photovoltaik in kW": st.session_state["pv_st_output"]["Photovoltaik"],
+                              "Solarthermie in kW": st.session_state["pv_st_output"]["Solarthermie"],
+                              "Windkraft in kW": st.session_state["wind_data"]["el. Leistung in kW"]})
+            csv = functions.convert_df(df)
+                    
+            c3.download_button(label="Download aller Daten!",
+                                       data=csv,
+                                       file_name='Ergebnisse_{}_{}'.format(st.session_state["city"], st.session_state["year"]),
+                                       mime='text/csv',
+                                       )
+    except:
+        st.markdown("<center>Du kannst hier alle Daten gesammelt herunterladen, sobald alle Berechnungen durchgeführt wurden</center>", unsafe_allow_html=True)
+            
+        
     st.markdown("<center>Diese App benutzt Daten von <a href='https://www.renewables.ninja/' target='_blank'>renewables.ninja</a></center>", unsafe_allow_html=True)
