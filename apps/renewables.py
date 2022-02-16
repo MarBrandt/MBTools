@@ -44,12 +44,16 @@ def app():
 
         # Linke Seite
         country = sel_col.selectbox('Land', options=countries.columns)
-        city = sel_col.text_input('Stadt:',)
+        st.session_state["city"] = sel_col.text_input('Stadt:',)
         st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2020)
+              
+        st.session_state["Koordinaten"] = functions.location_coordinates(st.session_state["city"], country)
         
-        st.session_state["Koordinaten"] = functions.location_coordinates(city, country)
+        st.session_state["date_time_index"] = pd.date_range(start="{}-01-01".format(st.session_state["year"]),
+                                                            end="{}-12-31 23:00".format(st.session_state["year"]),
+                                                            freq="H")
         
-        sel_col.markdown("<h3 style='text-align: center; color: red;'>Die Koordinaten von {} lauten:</h3>".format(city), unsafe_allow_html=True)
+        sel_col.markdown("<h3 style='text-align: center; color: red;'>Die Koordinaten von {} lauten:</h3>".format(st.session_state["city"]), unsafe_allow_html=True)
         sel_col.markdown("""
                         <ul style='list-style-type:disc'>
                           <li>Breitengrad: {}°</li>
@@ -60,7 +64,8 @@ def app():
                     unsafe_allow_html=True)
                 
         #  Rechte Spalte
-        m = functions.create_map(city=city, latitude=st.session_state["Koordinaten"].latitude,
+        m = functions.create_map(city=st.session_state["city"],
+                                 latitude=st.session_state["Koordinaten"].latitude,
                                  longitude=st.session_state["Koordinaten"].longitude)
         disp_col.write(m)
         
@@ -81,6 +86,15 @@ def app():
             metric2.metric(label="max. Temperatur", value=np.round(np.max(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             metric3.metric(label="min. Temperatur", value=np.round(np.min(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             metric4.metric(label="∅ Temperatur", value=np.round(np.average(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
+            
+            csv_ambient_t = functions.convert_df(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"])
+            
+            metric3.download_button(label="Umgebungstemperatur als CSV",
+                               data=csv_ambient_t,
+                               file_name='Umgebungstemperatur_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                               mime='text/csv',
+                               )
+            
             plotly_fig = px.line(data_frame=st.session_state['Umgebungstemperatur'],
                                  y="Umgebungstemperatur",
                                  color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
@@ -98,12 +112,21 @@ def app():
         if "Umgebungstemperatur" in st.session_state:
             st.session_state['Vorlauftemperatur'] = pd.DataFrame({"Vorlauftemperatur": functions.vorlauftemperatur(x=feed_flow_data[feed_flow_curve]['Umgebungstemperaturkennlinie'],
                                                                                        y=feed_flow_data[feed_flow_curve]['Vorlauftemperaturkennlinie'],
-                                                                                       umgebungstemperatur=st.session_state['Umgebungstemperatur']['Umgebungstemperatur'])})
+                                                                                       umgebungstemperatur=st.session_state['Umgebungstemperatur']['Umgebungstemperatur']),
+                                                                  "Datum": st.session_state["date_time_index"]}).set_index("Datum")
             
             metric1, metric2, metric3, metric4, metric5 = st.columns(5)
             metric2.metric(label="max. Temperatur", value=np.round(np.max(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),decimals=2), delta="°C")
             metric3.metric(label="min. Temperatur", value=np.round(np.min(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),decimals=2), delta="°C")
             metric4.metric(label="∅ Temperatur", value=np.round(np.average(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),decimals=2), delta="°C")
+            
+            csv_feed_flow = functions.convert_df(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"])
+            
+            metric3.download_button(label="Vorlauftemperatur als CSV",
+                               data=csv_feed_flow,
+                               file_name='Vorlauftemperatur_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                               mime='text/csv',
+                               )
             
             plotly_fig = px.line(data_frame=st.session_state['Vorlauftemperatur'],
                                  y="Vorlauftemperatur",
@@ -151,7 +174,7 @@ def app():
         
         # weiter in der mitte
         
-        col1, col2, col3 , col4, col5 = st.columns(5)
+        col1, col2, col3, col4, col5 = st.columns(5)
         start_pv_st_calc = col3.button('PV und Solarthermie berechnen!')
         
         # PV
@@ -188,20 +211,7 @@ def app():
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
-            
 
-        # # Solarthermie
-
-        #     st.session_state["pv_st_output"] = pd.DataFrame({"Solarthermie": functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
-        #                                                                                      irradiance_diffuse=pv_st_data['irradiance_diffuse'],
-        #                                                                                      tilt=st.session_state["Neigung"],
-        #                                                                                      umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
-        #                                                                                      vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
-        #                                                                                      ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
-        #                                                                                      eta_k0=st.session_state["eta_k0"], 
-        #                                                                                      a1=st.session_state["a1"],
-        #                                                                                      a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
-                                            
         if "pv_st_output" in st.session_state:
             
             metric1, metric2, metric3, metric4, metric5, metric6 = st.columns(6)
@@ -212,6 +222,18 @@ def app():
             metric4.metric(label="max. Leistung", value=np.round(np.max(st.session_state["pv_st_output"]["Solarthermie"]),decimals=2), delta="kW")
             metric5.metric(label="Produktion Solarthermie", value=np.round(np.sum(st.session_state["pv_st_output"]["Solarthermie"])/1000,decimals=2), delta="MWh")
             metric6.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["pv_st_output"]["Solarthermie"])/np.max(st.session_state["pv_st_output"]["Solarthermie"]),decimals=2), delta="VBH")         
+            
+            df_pv_st = pd.DataFrame({"Datum": st.session_state["date_time_index"],
+                                     "Photovoltaik [kW]": st.session_state["pv_st_output"]["Photovoltaik"],
+                                     "Solarthermie [kW]": st.session_state["pv_st_output"]["Solarthermie"]}).set_index("Datum")
+            csv_pv_st = functions.convert_df(df_pv_st)
+            
+            d1, d2, d3, d4, d5 = st.columns(5)
+            d3.download_button(label="Download PV/ST-Ertrag als CSV",
+                               data=csv_pv_st,
+                               file_name='PV_ST_Ertrag_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                               mime='text/csv',
+                               )
             
             plotly_fig = px.line(data_frame=st.session_state["pv_st_output"])
                                  # y="Vorlauftemperatur",
@@ -229,7 +251,8 @@ def app():
         start_wind_calc = col3.button('Berechnung Windkraft starten!')
         
         if start_wind_calc:
-            st.session_state["wind_data"] = pd.DataFrame({"el. Leistung in kW": functions.get_wind_data(lat=st.session_state["Koordinaten"].latitude,
+            st.session_state["wind_data"] = pd.DataFrame({"Datum": st.session_state["date_time_index"],
+                                                          "el. Leistung in kW": functions.get_wind_data(lat=st.session_state["Koordinaten"].latitude,
                                                                                                         lon=st.session_state["Koordinaten"].longitude,
                                                                                                         date_from='{}-01-01'.format(st.session_state["year"]),
                                                                                                         date_to='{}-12-31'.format(st.session_state["year"]),
@@ -243,8 +266,6 @@ def app():
                                                                                                                 capacity=st.session_state["wind_power"],
                                                                                                                 height=st.session_state["wind_height"],
                                                                                                                 turbine=st.session_state["wind_type"])["wind_speed"]})
-        # if "wind_data" in st.session_state:
-        #     st.write(st.session_state["wind_data"])
         
         if "wind_data" in st.session_state:
             
@@ -252,6 +273,14 @@ def app():
             metric2.metric(label="max. Leistung", value=np.round(np.max(st.session_state["wind_data"]["el. Leistung in kW"]),decimals=2), delta="kW")
             metric3.metric(label="Produktion Windenergie", value=np.round(np.sum(st.session_state["wind_data"]["el. Leistung in kW"])/1000,decimals=2), delta="MWh")
             metric4.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["wind_data"]["el. Leistung in kW"])/st.session_state["wind_power"],decimals=2), delta="VBH")
+            
+            csv_wind = functions.convert_df(st.session_state["wind_data"])
+            
+            metric3.download_button(label="Download Wind-Ertrag als CSV",
+                               data=csv_wind,
+                               file_name='Wind_Ertrag_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                               mime='text/csv',
+                               )
             
             plotly_fig = px.line(data_frame=st.session_state['wind_data'],
                                   y="el. Leistung in kW",
