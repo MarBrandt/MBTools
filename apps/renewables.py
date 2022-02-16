@@ -22,6 +22,7 @@ turbine_model = pd.read_json("apps/Daten/Windkraftanlagen")
 
 
 # %% Funktionen
+
 @st.cache(show_spinner=False)
 def get_solar_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
                    dataset='merra2', capacity=1.0, system_loss=0.16, tracking=0,
@@ -97,6 +98,7 @@ def get_solar_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
     data = pd.read_json(json.dumps(parsed_response['data']), orient='index')
     return data
 
+
 @st.cache(show_spinner=False)
 def get_wind_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
                    dataset='merra2', capacity=1.0, height=100,
@@ -159,6 +161,62 @@ def get_wind_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
     data = pd.read_json(json.dumps(parsed_response['data']), orient='index')
     return data
 
+
+def irradiance_global(irradiance_direct, irradiance_diffuse, tilt, albedo=0.2):
+    '''
+    parameter
+    ---------
+    irradiance_direct : numeric
+        direct radiation on a tilted area in kW/m²
+    irradiance_diffuse : numeric
+        diffuse radiation on a tilted area in kW/m²
+    tilt : numeric
+        How far the panel is inclined from the horizontal, in degrees. 
+        A tilt of 0° is a panel facing directly upwards, 
+        90° is a panel installed vertically, facing sideways.
+    albedo : numeric
+        Albedo is the measure of the diffuse reflection of solar radiation
+        
+    returns
+    -------
+    total irradiaten : numeric
+        total irradiation (sum of diffuse, direct and reflection)
+    '''
+    irradiance_refl = np.array(irradiance_diffuse) * albedo * (1 - np.cos(tilt)) / 2
+    irradiation = np.array(irradiance_direct) + np.array(irradiance_diffuse) + np.array(irradiance_refl)
+    return irradiation
+
+
+@st.cache
+def pv_power(irradiance_direct, irradiance_diffuse, eta_pv=0.17,
+             albedo=0.2, tilt=35, eta_wr=0.98, system_loss=0.17):
+    '''
+    parameter
+    ---------
+    albedo : numeric 
+        Albedo is the measure of the diffuse reflection of solar radiation 
+        from 0, corresponding to a black body that absorbs all incident radiation, 
+        to 1, corresponding to a body that reflects all incident radiation. 
+    irradiation_direct : numeric
+        direct radiation on a tilted area in kW/m²
+    irradiation_diffuse : numeric
+        diffuse radiation on a tilted area in kW/m²
+    tilt : numeric
+        How far the panel is inclined from the horizontal, in degrees. 
+        A tilt of 0° is a panel facing directly upwards, 
+        90° is a panel installed vertically, facing sideways.
+    eta_wr : numeric
+        inverter efficiency
+    eta_pv : numeric
+        photovoltaic efficiency
+    returns
+    -------
+    pv_output : numeric
+        PV power output in kW/m²
+    '''
+    return irradiance_global(irradiance_direct, irradiance_diffuse, tilt) * (1-system_loss) * eta_pv * eta_wr
+
+
 @st.cache
 def vorlauftemperatur(x,y,umgebungstemperatur):
     '''
@@ -187,6 +245,19 @@ def vorlauftemperatur(x,y,umgebungstemperatur):
         else:
             t_u.append(t)
     return np.polyval(fit,t_u)
+
+
+def st_power(umgebungstemperatur, vorlauftemperatur, ruecklauftemperatur,
+             irradiance_direct, irradiance_diffuse, tilt,
+             eta_k0=0.73, a1=1.7, a2=0.016):
+    np.seterr(divide='ignore', invalid='ignore')
+    E_global = irradiance_global(irradiance_direct, irradiance_diffuse, tilt)
+    T_kol = (np.array(vorlauftemperatur) + np.array(ruecklauftemperatur)) / 2
+    eta_k = eta_k0 - a1 * (np.array(T_kol) - np.array(umgebungstemperatur)) / (E_global*1000) \
+                    - a2 * (np.array(T_kol) - np.array(umgebungstemperatur))**2 / (E_global*1000)
+    eta_k[eta_k < 0] = 0
+    return E_global * eta_k
+
 
 @st.cache
 def location_coordinates(city, country):
@@ -226,7 +297,7 @@ def app():
         # Linke Seite
         country = sel_col.selectbox('Land', options=['Deutschland', 'Frankreich', 'Italien', 'USA'])
         city = sel_col.text_input('Stadt:',)
-        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2020)
+        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2010)
         
         st.session_state["Koordinaten"] = location_coordinates(city, country)
         
@@ -275,6 +346,7 @@ def app():
             st.session_state['Vorlauftemperatur'] = pd.DataFrame({"Vorlauftemperatur": vorlauftemperatur(x=feed_flow_data[feed_flow_curve]['Umgebungstemperaturkennlinie'],
                                                                                        y=feed_flow_data[feed_flow_curve]['Vorlauftemperaturkennlinie'],
                                                                                        umgebungstemperatur=st.session_state['Umgebungstemperatur']['Umgebungstemperatur'])})
+            
             plotly_fig = px.line(data_frame=st.session_state['Vorlauftemperatur'],
                                  y="Vorlauftemperatur",
                                  color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
@@ -302,11 +374,11 @@ def app():
             st.session_state["pv_area_usage"] = col_1.slider('Flächennutzungsgrad Photovoltaik [%]:', min_value=0, max_value=100, step=10, value=100)/100
             st.session_state["pv_eta"] = col_1.number_input('Modulwirkungsgrad [%]:', step=1, value=17)/100
         else:
-            pv_power = col_1.number_input('Installierte Leistung [kWp]:', step=100, value=1)
+            st.session_state["installed_pv_power"] = col_1.number_input('Installierte Leistung [kWp]:', step=100, value=1)
         
         
         # rechte Spalte
-        col_2.markdown("<h3 style='text-align: center; color: red;'>Solarthermie</h3>", unsafe_allow_html=True)
+        col_2.markdown("<h3 style='text-align: center; color: red;'>Solarthermie (aktuell noch nicht verfügbar)</h3>", unsafe_allow_html=True)
         st.session_state["sol_thermal_type"] = col_2.selectbox('Kollektortyp:', options=['Flachkollektor', 'Vakuumröhrenkollektor'])
         st.session_state["sol_thermal_area"] = col_2.number_input('Verfügbare Fläche insgesamt:', step=100, value=1)
         st.session_state["sol_thermal_area_usage"] = col_2.slider('Flächennutzungsgrad Solarthermie [%]:', min_value=0, max_value=100, step=10, value=100)/100
@@ -324,6 +396,42 @@ def app():
         col1, col2, col3 , col4, col5 = st.columns(5)
         start_pv_st_calc = col3.button('PV und Solarthermie berechnen!')
         
+        # PV
+        if start_pv_st_calc == True:
+            pv_st_data = get_solar_data(lat=st.session_state["Koordinaten"].latitude,
+                                        lon=st.session_state["Koordinaten"].longitude,
+                                        date_from='{}-01-01'.format(st.session_state["year"]),
+                                        date_to='{}-12-31'.format(st.session_state["year"]),
+                                        tilt=st.session_state["Neigung"],
+                                        azim=st.session_state["Azimut"])
+            
+            if st.session_state["pv_type"] == "Berechnung nach Fläche":
+                st.session_state["pv_output"] = pv_power(irradiance_direct=pv_st_data['irradiance_direct'],
+                                                         irradiance_diffuse=pv_st_data['irradiance_diffuse'],
+                                                         tilt=st.session_state["Neigung"],
+                                                         eta_pv=st.session_state["pv_eta"]) * st.session_state["pv_area"] * st.session_state["pv_area_usage"]
+            else:
+                st.session_state["pv_output"] = pv_st_data['electricity'] * st.session_state["installed_pv_power"]
+            
+
+        # Solarthermie
+            # st.session_state["st_output"] = st_power(irradiance_direct=pv_st_data['irradiance_direct'],
+            #                                          irradiance_diffuse=pv_st_data['irradiance_direct'],
+            #                                          tilt=st.session_state["Neigung"],
+            #                                          umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
+            #                                          vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
+            #                                          ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
+            #                                          eta_k0=st.session_state["eta_k0"], 
+            #                                          a1=st.session_state["a1"],
+            #                                          a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]   
+            
+            # st.write(st.session_state)
+            
+            plotly_fig = px.line(data_frame=st.session_state["pv_output"])
+                                 # y="Vorlauftemperatur",
+                                 # color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
+            plotly_fig.update_xaxes(visible=False)
+            st.plotly_chart(plotly_fig, use_container_width=True)
 
 # %% Windkraft
     with st.expander("Windkraft", expanded=False):
