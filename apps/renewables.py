@@ -22,6 +22,7 @@ import apps.functions as functions
 
 feed_flow_data = pd.read_json("apps/Daten/Vorlauftemperaturdaten")
 turbine_model = pd.read_json("apps/Daten/Windkraftanlagen") 
+countries = pd.read_json("apps/Daten/countries")
 
 def app():
     st.markdown("<h1 style='text-align: center; color: red;'>Rechner für erneuerbare Energien</h1>", unsafe_allow_html=True)
@@ -42,9 +43,9 @@ def app():
         sel_col, disp_col = st.columns(2)
 
         # Linke Seite
-        country = sel_col.selectbox('Land', options=['Deutschland', 'Frankreich', 'Italien', 'USA'])
+        country = sel_col.selectbox('Land', options=countries.columns)
         city = sel_col.text_input('Stadt:',)
-        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2010)
+        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2020)
         
         st.session_state["Koordinaten"] = functions.location_coordinates(city, country)
         
@@ -57,7 +58,7 @@ def app():
                     """.format(round(st.session_state["Koordinaten"].latitude,2),
                                round(st.session_state["Koordinaten"].longitude,2)),
                     unsafe_allow_html=True)
-        
+                
         #  Rechte Spalte
         m = functions.create_map(city=city, latitude=st.session_state["Koordinaten"].latitude,
                                  longitude=st.session_state["Koordinaten"].longitude)
