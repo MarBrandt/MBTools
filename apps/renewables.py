@@ -164,17 +164,11 @@ def app():
                                                   azim=st.session_state["Azimut"])
             
             if st.session_state["pv_type"] == "Berechnung nach Fläche":
-                st.session_state["pv_output"] = pd.DataFrame({"Photovoltaik": functions.pv_power(irradiance_direct=pv_st_data['irradiance_direct'],
+                st.session_state["pv_st_output"] = pd.DataFrame({"Photovoltaik": functions.pv_power(irradiance_direct=pv_st_data['irradiance_direct'],
                                                                                                  irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                                                  tilt=st.session_state["Neigung"],
-                                                                                                 eta_pv=st.session_state["pv_eta"]) * st.session_state["pv_area"] * st.session_state["pv_area_usage"]})
-            else:
-                st.session_state["pv_output"] = pd.DataFrame({"Photovoltaik": pv_st_data['electricity'] * st.session_state["installed_pv_power"]})
-            
-
-        # Solarthermie
-
-            st.session_state["st_output"] = pd.DataFrame({"Solarthermie": functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
+                                                                                                 eta_pv=st.session_state["pv_eta"]) * st.session_state["pv_area"] * st.session_state["pv_area_usage"],
+                                                                 "Solarthermie": functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
                                                                                              irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                                              tilt=st.session_state["Neigung"],
                                                                                              umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
@@ -183,19 +177,43 @@ def app():
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
+            else:
+                st.session_state["pv_st_output"] = pd.DataFrame({"Photovoltaik": pv_st_data['electricity'] * st.session_state["installed_pv_power"],
+                                                                 "Solarthermie": functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
+                                                                                             irradiance_diffuse=pv_st_data['irradiance_diffuse'],
+                                                                                             tilt=st.session_state["Neigung"],
+                                                                                             umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
+                                                                                             vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
+                                                                                             ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
+                                                                                             eta_k0=st.session_state["eta_k0"], 
+                                                                                             a1=st.session_state["a1"],
+                                                                                             a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
+            
+
+        # # Solarthermie
+
+        #     st.session_state["pv_st_output"] = pd.DataFrame({"Solarthermie": functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
+        #                                                                                      irradiance_diffuse=pv_st_data['irradiance_diffuse'],
+        #                                                                                      tilt=st.session_state["Neigung"],
+        #                                                                                      umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
+        #                                                                                      vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
+        #                                                                                      ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
+        #                                                                                      eta_k0=st.session_state["eta_k0"], 
+        #                                                                                      a1=st.session_state["a1"],
+        #                                                                                      a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
                                             
-        if "pv_output" and "st_output" in st.session_state:
+        if "pv_st_output" in st.session_state:
             
             metric1, metric2, metric3, metric4, metric5, metric6 = st.columns(6)
-            metric1.metric(label="max. Leistung", value=np.round(np.max(st.session_state["pv_output"]["Photovoltaik"]),decimals=2), delta="kW")
-            metric2.metric(label="Produktion Photovoltaik", value=np.round(np.sum(st.session_state["pv_output"]["Photovoltaik"])/1000,decimals=2), delta="MWh")
-            metric3.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["pv_output"]["Photovoltaik"])/st.session_state["installed_pv_power"],decimals=2), delta="VBH")
+            metric1.metric(label="max. Leistung", value=np.round(np.max(st.session_state["pv_st_output"]["Photovoltaik"]),decimals=2), delta="kW")
+            metric2.metric(label="Produktion Photovoltaik", value=np.round(np.sum(st.session_state["pv_st_output"]["Photovoltaik"])/1000,decimals=2), delta="MWh")
+            metric3.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["pv_st_output"]["Photovoltaik"])/st.session_state["installed_pv_power"],decimals=2), delta="VBH")
             
-            metric4.metric(label="max. Leistung", value=np.round(np.max(st.session_state["st_output"]["Solarthermie"]),decimals=2), delta="kW")
-            metric5.metric(label="Produktion Solarthermie", value=np.round(np.sum(st.session_state["st_output"]["Solarthermie"])/1000,decimals=2), delta="MWh")
-            metric6.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["st_output"]["Solarthermie"])/np.max(st.session_state["st_output"]["Solarthermie"]),decimals=2), delta="VBH")         
+            metric4.metric(label="max. Leistung", value=np.round(np.max(st.session_state["pv_st_output"]["Solarthermie"]),decimals=2), delta="kW")
+            metric5.metric(label="Produktion Solarthermie", value=np.round(np.sum(st.session_state["pv_st_output"]["Solarthermie"])/1000,decimals=2), delta="MWh")
+            metric6.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["pv_st_output"]["Solarthermie"])/np.max(st.session_state["pv_st_output"]["Solarthermie"]),decimals=2), delta="VBH")         
             
-            plotly_fig = px.line(data_frame=st.session_state["pv_output"])
+            plotly_fig = px.line(data_frame=st.session_state["pv_st_output"])
                                  # y="Vorlauftemperatur",
                                  # color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
             plotly_fig.update_xaxes(visible=False)
@@ -240,3 +258,5 @@ def app():
                                   color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
             plotly_fig.update_xaxes(visible=False)
             st.plotly_chart(plotly_fig, use_container_width=True)
+    
+    st.markdown("<center>Diese App benutzt Daten von <a href='https://www.renewables.ninja/' target='_blank'>renewables.ninja</a></center>", unsafe_allow_html=True)
