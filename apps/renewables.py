@@ -5,17 +5,18 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-import requests
-import json
+# import requests
+# import json
 
 import streamlit as st
 
-from geopy.geocoders import Nominatim
+# from geopy.geocoders import Nominatim
 
-import folium
-from folium.features import LatLngPopup
+# import folium
+# from folium.features import LatLngPopup
 
 import apps.functions as functions
+
 
 # %% Datenimport
 
@@ -156,23 +157,25 @@ def app():
                                                                    irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                    tilt=st.session_state["Neigung"],
                                                                    eta_pv=st.session_state["pv_eta"]) * st.session_state["pv_area"] * st.session_state["pv_area_usage"]
+                st.write(np.sum(pv_st_data['irradiance_direct']))
+                st.write(np.sum(pv_st_data['irradiance_diffuse']))
             else:
                 st.session_state["pv_output"] = pv_st_data['electricity'] * st.session_state["installed_pv_power"]
             
 
         # Solarthermie
+
             st.session_state["st_output"] = functions.st_power(irradiance_direct=pv_st_data['irradiance_direct'],
-                                                               irradiance_diffuse=pv_st_data['irradiance_direct'],
+                                                               irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                tilt=st.session_state["Neigung"],
                                                                umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
                                                                vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
                                                                ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
                                                                eta_k0=st.session_state["eta_k0"], 
                                                                a1=st.session_state["a1"],
-                                                               a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]   
+                                                               a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]
             
-            st.write(st.session_state)
-        if "pv_output" in st.session_state:
+        if "pv_output" and "st_output" in st.session_state:
             plotly_fig = px.line(data_frame=st.session_state["pv_output"])
                                  # y="Vorlauftemperatur",
                                  # color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
