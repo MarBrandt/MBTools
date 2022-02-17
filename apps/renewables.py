@@ -5,15 +5,7 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-# import requests
-# import json
-
 import streamlit as st
-
-# from geopy.geocoders import Nominatim
-
-# import folium
-# from folium.features import LatLngPopup
 
 import apps.functions as functions
 
@@ -160,7 +152,7 @@ def app():
         
         
         # rechte Spalte
-        col_2.markdown("<h3 style='text-align: center; color: red;'>Solarthermie (aktuell noch nicht verfügbar)</h3>", unsafe_allow_html=True)
+        col_2.markdown("<h3 style='text-align: center; color: red;'>Solarthermie</h3>", unsafe_allow_html=True)
         st.session_state["sol_thermal_type"] = col_2.selectbox('Kollektortyp:', options=['Flachkollektor', 'Vakuumröhrenkollektor'])
         st.session_state["sol_thermal_area"] = col_2.number_input('Verfügbare Fläche insgesamt:', step=100, value=1)
         st.session_state["sol_thermal_area_usage"] = col_2.slider('Flächennutzungsgrad Solarthermie [%]:', min_value=0, max_value=100, step=10, value=100)/100
