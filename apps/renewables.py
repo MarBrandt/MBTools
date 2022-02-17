@@ -300,7 +300,7 @@ def app():
                     
             c3.download_button(label="Download aller Daten!",
                                        data=csv,
-                                       file_name='Ergebnisse_{}_{}'.format(st.session_state["city"], st.session_state["year"]),
+                                       file_name='Wetterdaten_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
                                        mime='text/csv',
                                        )
     except:
