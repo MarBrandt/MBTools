@@ -204,7 +204,8 @@ def app():
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
-
+            start_pv_st_calc = False
+            
         if "pv_st_output" in st.session_state:
             
             metric1, metric2, metric3, metric4, metric5, metric6 = st.columns(6)
