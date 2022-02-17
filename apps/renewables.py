@@ -289,13 +289,12 @@ def app():
         else:
             c1, c2, c3, c4, c5 = st.columns(5)
             
-            df = pd.DataFrame({"Datum": st.session_state["date_time_index"],
-                              "Umgebungstemperatur in °C": st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
-                              "Windgeschwindigkeit in m/s": st.session_state["wind_data"]["Windgeschwindigkeit in m/s"],
-                              "Vorlauftemperatur in °C": st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"],
-                              "Photovoltaik in kW": st.session_state["pv_st_output"]["Photovoltaik"],
-                              "Solarthermie in kW": st.session_state["pv_st_output"]["Solarthermie"],
-                              "Windkraft in kW": st.session_state["wind_data"]["el. Leistung in kW"]})
+            df = pd.DataFrame({"Umgebungstemperatur in °C": st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
+                               "Windgeschwindigkeit in m/s": st.session_state["wind_data"]["Windgeschwindigkeit in m/s"],
+                               "Vorlauftemperatur in °C": st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"],
+                               "Photovoltaik in kW": st.session_state["pv_st_output"]["Photovoltaik"],
+                               "Solarthermie in kW": st.session_state["pv_st_output"]["Solarthermie"],
+                               "Windkraft in kW": st.session_state["wind_data"]["el. Leistung in kW"]})
             csv = functions.convert_df(df)
                     
             c3.download_button(label="Download aller Daten!",
