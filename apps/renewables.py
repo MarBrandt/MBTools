@@ -19,13 +19,11 @@ countries = pd.read_json("apps/Daten/countries")
 def app():
     st.markdown("<h1 style='text-align: center; color: red;'>Rechner für erneuerbare Energien</h1>", unsafe_allow_html=True)
     
-    st.markdown("<center>Mit Hilfe dieser App kannst du orts- und jahresbezogene Erträge sowie Randdaten für folgende Anlagen berechnen und die Ergebnisse herunterladen:</center>", unsafe_allow_html=True)
+    st.markdown("<center>Mit Hilfe dieser App kannst du orts- und jahresbezogene Erträge sowie Randdaten für folgende Anlagen berechnen und die Ergebnisse herunterladen</center>", unsafe_allow_html=True)
     st.markdown("""
                     <ul style='list-style-type:disc'>
-                      <li>Photovoltaik</li>
-                      <li>Solarthermie</li>
-                      <li>Windkraft</li>
-                      <li>Vorlauftemperatur (Wärmenetz)</li>
+                      <li>Lade die Wetterdaten für den gewünschten Ort und das entsprechende Jahr herunter</li>
+                      <li>Berechne den Ertrag von Photovoltaik, Solarthermie oder Windkraft</li>
                     </ul>     
                 """, unsafe_allow_html=True)
                 
