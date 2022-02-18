@@ -8,8 +8,8 @@ Created on Sun Feb 13 11:34:07 2022
 import numpy as np
 import pandas as pd
 
-df = pd.DataFrame({'GP Joule Standard': {'Umgebungstemperaturkennlinie': [-20,-10,0,10,20,30],
-                                          'Vorlauftemperaturkennlinie': [80, 78, 75, 65, 63, 63],
+df = pd.DataFrame({'GP Joule Standard': {'Umgebungstemperaturkennlinie': [-10,0,10,15,30],
+                                          'Vorlauftemperaturkennlinie': [78, 75, 72, 70, 70],
                                           'Rücklauftemperatur': [50, 50, 50, 50, 50, 50]},
                     'Heißwassernetz': {'Umgebungstemperaturkennlinie': [-20,-10,0,10,20,30],
                                       'Vorlauftemperaturkennlinie': [120, 120, 105, 85, 80, 80],
@@ -20,7 +20,3 @@ df = pd.DataFrame({'GP Joule Standard': {'Umgebungstemperaturkennlinie': [-20,-1
                     })
 
 df.to_json("Daten/Vorlauftemperaturdaten")
-
-data = pd.read_json("Daten/Vorlauftemperaturdaten")
-
-wind = pd.read_json("Daten/Windkraftanlagen")
