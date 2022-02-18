@@ -164,6 +164,14 @@ def app():
             st.session_state["eta_k0"] = 0.581
             st.session_state["a1"] = 0.339
             st.session_state["a2"] = 0.009     
+            
+        st.session_state["ST_Temperaturniveau"] = col_2.selectbox('Temperaturniveau der Einspeisung', options=["Vorlauftemperatur", "festgesetzte Temperatur"])
+        if st.session_state["ST_Temperaturniveau"] == "festgesetzte Temperatur":
+            st.session_state['Vorlauftemperatur']["Vorlauftemperatur"] = col_2.number_input("Austrittstemperatur Solarthermie:", value=60)
+            st.session_state['Rücklauftemperatur'] = col_2.number_input("Eintrittestemperatur Solarthermie:", value=30)
+        else:
+            st.session_state['Rücklauftemperatur'] = feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0]
+            
         
         # weiter in der mitte
         
@@ -189,7 +197,7 @@ def app():
                                                                                              tilt=st.session_state["Neigung"],
                                                                                              umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
                                                                                              vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
-                                                                                             ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
+                                                                                             ruecklauftemperatur=st.session_state['Rücklauftemperatur'],
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
@@ -200,7 +208,7 @@ def app():
                                                                                              tilt=st.session_state["Neigung"],
                                                                                              umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
                                                                                              vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
-                                                                                             ruecklauftemperatur=feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0],
+                                                                                             ruecklauftemperatur=st.session_state['Rücklauftemperatur'],
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
