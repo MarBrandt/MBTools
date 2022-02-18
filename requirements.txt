@@ -1,7 +1,7 @@
 folium==0.12.1
 branca==0.3.1
 geopy==2.2.0
-numpy==1.22.0
+numpy==1.21.0
 pandas==1.2.4
 Pillow==9.0.1
 plotly==5.4.0
