@@ -166,11 +166,19 @@ def app():
             st.session_state["a2"] = 0.009     
             
         st.session_state["ST_Temperaturniveau"] = col_2.selectbox('Temperaturniveau der Einspeisung', options=["Vorlauftemperatur", "festgesetzte Temperatur"])
+        
         if st.session_state["ST_Temperaturniveau"] == "festgesetzte Temperatur":
-            st.session_state['Vorlauftemperatur']["Vorlauftemperatur"] = col_2.number_input("Austrittstemperatur Solarthermie:", value=60)
-            st.session_state['Rücklauftemperatur'] = col_2.number_input("Eintrittestemperatur Solarthermie:", value=30)
+            st.session_state['Austrittstemperatur_Solarthermie'] = col_2.number_input("Austrittstemperatur Solarthermie:", value=60)
+            st.session_state['Eintrittstemperatur_Solarthermie'] = col_2.number_input("Eintrittestemperatur Solarthermie:", value=30)
         else:
-            st.session_state['Rücklauftemperatur'] = feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0]
+            if 'Vorlauftemperatur' not in st.session_state:
+                print("Lade Temperaturdaten")
+            else:
+                st.session_state['Austrittstemperatur_Solarthermie'] = st.session_state['Vorlauftemperatur']["Vorlauftemperatur"]
+                st.session_state['Eintrittstemperatur_Solarthermie'] = feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0]
+            
+                    
+                
             
         
         # weiter in der mitte
@@ -196,8 +204,8 @@ def app():
                                                                                              irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                                              tilt=st.session_state["Neigung"],
                                                                                              umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
-                                                                                             vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
-                                                                                             ruecklauftemperatur=st.session_state['Rücklauftemperatur'],
+                                                                                             vorlauftemperatur=st.session_state['Austrittstemperatur_Solarthermie'],
+                                                                                             ruecklauftemperatur=st.session_state['Eintrittstemperatur_Solarthermie'],
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
@@ -207,8 +215,8 @@ def app():
                                                                                              irradiance_diffuse=pv_st_data['irradiance_diffuse'],
                                                                                              tilt=st.session_state["Neigung"],
                                                                                              umgebungstemperatur=st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"],
-                                                                                             vorlauftemperatur=st.session_state['Vorlauftemperatur']["Vorlauftemperatur"],
-                                                                                             ruecklauftemperatur=st.session_state['Rücklauftemperatur'],
+                                                                                             vorlauftemperatur=st.session_state['Austrittstemperatur_Solarthermie'],
+                                                                                             ruecklauftemperatur=st.session_state['Eintrittstemperatur_Solarthermie'],
                                                                                              eta_k0=st.session_state["eta_k0"], 
                                                                                              a1=st.session_state["a1"],
                                                                                              a2=st.session_state["a2"]) * st.session_state["sol_thermal_area"] * st.session_state["sol_thermal_area_usage"]})
