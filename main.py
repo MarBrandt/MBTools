@@ -7,12 +7,6 @@ Created on Sat Feb 12 10:23:19 2022
 
 import PIL  # Paket zum Laden eines png für das favicon
 import streamlit as st
-
-from multiapps import MultiApp
-from apps import renewables
-
-# %% Set Page Config
-
 page_icon = PIL.Image.open('pictures/GPJoule_Logo.png')
 st.set_page_config(page_title='MB Tools',
                    page_icon=page_icon,
@@ -22,6 +16,11 @@ st.set_page_config(page_title='MB Tools',
                        'Get Help': 'https://www.gp-joule.de/',
                        'Report a bug': 'https://www.gp-joule.de/',
                        'About': 'https://www.gp-joule.de/'})
+
+
+from multiapps import MultiApp
+from apps import renewables, power_curves
+
 
 
 app = MultiApp()
@@ -45,4 +44,5 @@ st.sidebar.markdown("<center>Hilfsmittel zur Simulation von Energiesystemen</cen
 st.sidebar.markdown("")
 st.sidebar.markdown("Wähle aus einer Handvoll Tools, die dir das Arbeiten mit Energiesystemen erleichtern sollen!")
 app.add_app('Rechner für erneuerbare Energien', renewables.app)
+app.add_app('Leistungskurven von WKAs', power_curves.app)
 app.run()
