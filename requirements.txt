@@ -7,3 +7,4 @@ Pillow==9.0.1
 plotly==5.4.0
 requests==2.25.1
 streamlit==1.2.0
+matplotlib==3.3.4
