@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 
+import apps.functions as functions
+
 
 def app():
     # %% Datenimport
@@ -37,6 +39,13 @@ def app():
     st.session_state["wka1"] = st.selectbox("Windkraftanlage 1", options=list(power_curves.columns), index=30)
     st.session_state["wka2"] = st.selectbox("Windkraftanlage 2", options=list(power_curves.columns), index=70)
     st.session_state["wka3"] = st.selectbox("Windkraftanlage 3", options=list(power_curves.columns), index=42)
+        
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col3.download_button(label="Datensatz herunterladen!",
+                         data=functions.convert_df(power_curves),
+                         file_name='Leistungskurven_Windkraft.csv',
+                         mime='text/csv',
+                         )
     
     y1 = power_curves[st.session_state["wka1"]]
     y2 = power_curves[st.session_state["wka2"]]
