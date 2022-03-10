@@ -78,10 +78,8 @@ def app():
             metric3.metric(label="min. Temperatur", value=np.round(np.min(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             metric4.metric(label="∅ Temperatur", value=np.round(np.average(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             
-            csv_ambient_t = functions.convert_df(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"])
-            
             metric3.download_button(label="Umgebungstemperatur als CSV",
-                               data=csv_ambient_t,
+                               data=functions.convert_df(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),
                                file_name='Umgebungstemperatur_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
                                mime='text/csv',
                                )
@@ -111,10 +109,8 @@ def app():
             metric3.metric(label="min. Temperatur", value=np.round(np.min(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),decimals=2), delta="°C")
             metric4.metric(label="∅ Temperatur", value=np.round(np.average(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),decimals=2), delta="°C")
             
-            csv_feed_flow = functions.convert_df(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"])
-            
             metric3.download_button(label="Vorlauftemperatur als CSV",
-                               data=csv_feed_flow,
+                               data=functions.convert_df(st.session_state["Vorlauftemperatur"]["Vorlauftemperatur"]),
                                file_name='Vorlauftemperatur_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
                                mime='text/csv',
                                )
@@ -176,9 +172,6 @@ def app():
                 st.session_state['Eintrittstemperatur_Solarthermie'] = feed_flow_data[feed_flow_curve]['Rücklauftemperatur'][0]
             
                     
-                
-            
-        
         # weiter in der mitte
         
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -234,11 +227,10 @@ def app():
             df_pv_st = pd.DataFrame({"Datum": st.session_state["date_time_index"],
                                      "Photovoltaik [kW]": st.session_state["pv_st_output"]["Photovoltaik"],
                                      "Solarthermie [kW]": st.session_state["pv_st_output"]["Solarthermie"]}).set_index("Datum")
-            csv_pv_st = functions.convert_df(df_pv_st)
             
             d1, d2, d3, d4, d5 = st.columns(5)
             d3.download_button(label="Download PV/ST-Ertrag als CSV",
-                               data=csv_pv_st,
+                               data=functions.convert_df(df_pv_st),
                                file_name='PV_ST_Ertrag_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
                                mime='text/csv',
                                )
@@ -282,13 +274,11 @@ def app():
             metric3.metric(label="Produktion Windenergie", value=np.round(np.sum(st.session_state["wind_data"]["el. Leistung in kW"])/1000,decimals=2), delta="MWh")
             metric4.metric(label="Vollbenutzungsstunden", value=np.round(np.sum(st.session_state["wind_data"]["el. Leistung in kW"])/st.session_state["wind_power"],decimals=2), delta="VBH")
             
-            csv_wind = functions.convert_df(st.session_state["wind_data"])
-            
             metric3.download_button(label="Download Wind-Ertrag als CSV",
-                               data=csv_wind,
-                               file_name='Wind_Ertrag_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
-                               mime='text/csv',
-                               )
+                                    data=functions.convert_df(st.session_state["wind_data"]),
+                                    file_name='Wind_Ertrag_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                                    mime='text/csv',
+                                    )
             
             plotly_fig = px.line(data_frame=st.session_state['wind_data'],
                                   y="el. Leistung in kW",
@@ -309,13 +299,12 @@ def app():
                                "Photovoltaik in kW": st.session_state["pv_st_output"]["Photovoltaik"],
                                "Solarthermie in kW": st.session_state["pv_st_output"]["Solarthermie"],
                                "Windkraft in kW": st.session_state["wind_data"]["el. Leistung in kW"]})
-            csv = functions.convert_df(df)
                     
             c3.download_button(label="Download aller Daten!",
-                                       data=csv,
-                                       file_name='Wetterdaten_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
-                                       mime='text/csv',
-                                       )
+                               data=functions.convert_df(df),
+                               file_name='Wetterdaten_{}_{}.csv'.format(st.session_state["city"], st.session_state["year"]),
+                               mime='text/csv',
+                               )
     except:
         st.markdown("<center>Du kannst hier alle Daten gesammelt herunterladen, sobald alle Berechnungen durchgeführt wurden</center>", unsafe_allow_html=True)
             
