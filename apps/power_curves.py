@@ -29,10 +29,8 @@ def app():
     # %% App
     
     st.markdown("<h1 style='text-align: center; color: red;'>Leistungskurven von Windenergieanlagen</h1>", unsafe_allow_html=True)
-    
     st.markdown("<center>Wähle verschiedene Windkraftanlagen aus und vergleiche die Leistungskurven (Daten von <a href='https://www.renewables.ninja/' target='_blank'>renewables.ninja</a>)</center>", unsafe_allow_html=True)
 
-                
 
 # %% Auswahl der Anlagen, die miteinander verglichen werden sollen
 
