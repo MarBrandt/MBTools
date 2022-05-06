@@ -8,3 +8,4 @@ Pillow==9.1.0
 plotly==5.4.0
 requests==2.25.1
 streamlit==1.2.0
+XlsxWriter==3.0.3
