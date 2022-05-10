@@ -70,23 +70,32 @@ def app():
                                                                        date_from='{}-01-01'.format(st.session_state["year"]), date_to='{}-12-31'.format(st.session_state["year"]),
                                                                        dataset='merra2', capacity=1.0, system_loss=0.16, tracking=0,
                                                                        tilt=0, azim=180)
+            st.session_state["Winddaten"] = functions.get_wind_data(lat=st.session_state["Koordinaten"].latitude,
+                                                                    lon=st.session_state["Koordinaten"].longitude,
+                                                                    date_from='{}-01-01'.format(st.session_state["year"]),
+                                                                    date_to='{}-12-31'.format(st.session_state["year"]))
+            
             # st.write(st.session_state["Wetterdaten"])
             st.session_state["Wetterdaten"].drop("electricity", axis=1, inplace=True)
             st.session_state["Wetterdaten"]["Datum"] = st.session_state["date_time_index"]
             st.session_state["Wetterdaten"].set_index("Datum")
+            st.session_state["Wetterdaten"]["Windgeschwindigkeit in m/s"] = st.session_state["Winddaten"]["wind_speed"]
+            st.session_state["Wetterdaten"].rename(columns={"irradiance_diffuse": "Diffusstrahlung in kW/m²",
+                                                            "irradiance_direct": "Direktstrahlung in kW/m²",
+                                                            "temperature": "Umgebungstemperatur in °C"}, inplace=True)
             
-            st.session_state["Umgebungstemperatur"] = pd.DataFrame({'Umgebungstemperatur': st.session_state["Wetterdaten"]['temperature']})
+            st.session_state["Umgebungstemperatur"] = pd.DataFrame({'Umgebungstemperatur': st.session_state["Wetterdaten"]['Umgebungstemperatur in °C']})
                                 
         if "Umgebungstemperatur" in st.session_state:
             metric1, metric2, metric3, metric4, metric5 = st.columns(5)
             metric2.metric(label="max. Temperatur", value=np.round(np.max(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             metric3.metric(label="min. Temperatur", value=np.round(np.min(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
             metric4.metric(label="∅ Temperatur", value=np.round(np.average(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
-            
+
             df_umgebung = functions.to_excel(st.session_state["Wetterdaten"])
-            metric3.download_button(label='📥 Download Umgebungstemperatur',
+            metric3.download_button(label='📥 Download Wetterdaten {}'.format(st.session_state["city"]),
                                data=df_umgebung,
-                               file_name= 'Umgebungstemperatur_{}_{}.xlsx'.format(st.session_state["city"], st.session_state["year"]))
+                               file_name= 'Umgebungsdaten_{}_{}.xlsx'.format(st.session_state["city"], st.session_state["year"]))
             
             plotly_fig = px.line(data_frame=st.session_state['Umgebungstemperatur'],
                                  y="Umgebungstemperatur",
