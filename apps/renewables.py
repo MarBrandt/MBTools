@@ -20,6 +20,7 @@ def app():
     st.markdown("<h1 style='text-align: center; color: red;'>Rechner für erneuerbare Energien</h1>", unsafe_allow_html=True)
     
     st.markdown("<center>Mit Hilfe dieser App kannst du orts- und jahresbezogene Erträge sowie Randdaten für folgende Anlagen berechnen und die Ergebnisse herunterladen</center>", unsafe_allow_html=True)
+    st.markdown("<center>Für die Verwendung im Kalkulationstool oder TOP-Energy ist das Jahr 2019 voreingestellt</center>", unsafe_allow_html=True)
     st.markdown("""
                     <ul style='list-style-type:disc'>
                       <li>Lade die Wetterdaten für den gewünschten Ort und das entsprechende Jahr herunter</li>
@@ -36,7 +37,7 @@ def app():
         # Linke Seite
         country = sel_col.selectbox('Land', options=countries.columns)
         st.session_state["city"] = sel_col.text_input('Stadt:',)
-        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2020)
+        st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2020, value=2019)
               
         st.session_state["Koordinaten"] = functions.location_coordinates(st.session_state["city"], country)
         
