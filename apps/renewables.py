@@ -86,7 +86,7 @@ def app():
                                                             "temperature": "Umgebungstemperatur in °C"}, inplace=True)
             
             st.session_state["Umgebungstemperatur"] = pd.DataFrame({'Umgebungstemperatur': st.session_state["Wetterdaten"]['Umgebungstemperatur in °C']})
-                                
+            
         if "Umgebungstemperatur" in st.session_state:
             metric1, metric2, metric3, metric4, metric5 = st.columns(5)
             metric2.metric(label="max. Temperatur", value=np.round(np.max(st.session_state["Umgebungstemperatur"]["Umgebungstemperatur"]),decimals=2), delta="°C")
@@ -95,15 +95,15 @@ def app():
 
             df_umgebung = functions.to_excel(st.session_state["Wetterdaten"])
             metric3.download_button(label='📥 Download Wetterdaten {}'.format(st.session_state["city"]),
-                               data=df_umgebung,
-                               file_name= 'Umgebungsdaten_{}_{}.xlsx'.format(st.session_state["city"], st.session_state["year"]))
+                                    data=df_umgebung,
+                                    file_name= 'Umgebungsdaten_{}_{}.xlsx'.format(st.session_state["city"], st.session_state["year"]))
             
             plotly_fig = px.line(data_frame=st.session_state['Umgebungstemperatur'],
                                  y="Umgebungstemperatur",
                                  color_discrete_sequence = ['darkorange']).update_layout(showlegend=False)
             plotly_fig.update_xaxes(visible=False)
             st.plotly_chart(plotly_fig, use_container_width=True)
-
+            
 
 # %% Vorlauftemperatur        
     with st.expander("Vorlauftemperatur", expanded=False):

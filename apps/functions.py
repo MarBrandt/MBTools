@@ -27,7 +27,7 @@ from folium.features import LatLngPopup
 def convert_df(df):
     return df.to_csv().encode('utf-8')
 
-@st.cache(show_spinner=False)
+
 def get_solar_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
                    dataset='merra2', capacity=1.0, system_loss=0.16, tracking=0,
                    tilt=35, azim=180):
