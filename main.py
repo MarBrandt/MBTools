@@ -19,7 +19,7 @@ st.set_page_config(page_title='MB Tools',
 
 
 from multiapps import MultiApp
-from apps import renewables, power_curves
+from apps import renewables, power_curves, bdew_load_profiles
 
 
 
@@ -43,6 +43,7 @@ st.sidebar.markdown("<h2 style='text-align: center; color: red;'>MB Tools</h2>",
 st.sidebar.markdown("<center>Hilfsmittel zur Simulation von Energiesystemen</center>", unsafe_allow_html=True)
 st.sidebar.markdown("")
 st.sidebar.markdown("Wähle aus einer Handvoll Tools, die dir das Arbeiten mit Energiesystemen erleichtern sollen!")
+app.add_app('BDEW Standardlastprofile', bdew_load_profiles.app)
 app.add_app('Rechner für erneuerbare Energien', renewables.app)
 app.add_app('Leistungskurven von WKAs', power_curves.app)
 app.run()
