@@ -9,6 +9,11 @@ from io import BytesIO
 import pandas as pd
 import numpy as np
 
+import datetime
+
+import demandlib.bdew as bdew
+import demandlib.particular_profiles as profiles
+
 import requests
 import json
 
@@ -291,3 +296,39 @@ def to_excel(df):
     writer.save()
     processed_data = output.getvalue()
     return processed_data
+
+def bdew_heat_demand(year, building_class, ann_demands_per_type, holidays, temperature):
+    demand = pd.DataFrame(
+        index=pd.date_range(
+            datetime.datetime(year, 1, 1, 0), periods=len(temperature), freq="H"
+        )
+    )
+    
+    for entry in ann_demands_per_type:
+        if entry == "efh" or entry == "mfh":
+            demand[entry.upper()] = bdew.HeatBuilding(
+                demand.index,
+                holidays=holidays,
+                temperature=temperature,
+                shlp_type=entry,
+                building_class=building_class,
+                wind_class=1,
+                annual_heat_demand=ann_demands_per_type[entry],
+               name=entry,
+            ).get_bdew_profile()
+        else:
+            demand[entry.upper()] = bdew.HeatBuilding(
+                demand.index,
+                holidays=holidays,
+                temperature=temperature,
+                shlp_type=entry,
+                wind_class=1,
+                annual_heat_demand=ann_demands_per_type[entry],
+                name=entry,
+            ).get_bdew_profile()
+    return demand
+
+def bdew_electricity_demand(year, ann_el_demand_per_sector, holidays):
+    e_slp = bdew.ElecSlp(year, holidays=holidays)
+    demand = e_slp.get_profile(ann_el_demand_per_sector, dyn_function_h0=True).resample("H").mean()
+    return demand
