@@ -75,7 +75,7 @@ def app():
 # %% Eingabe Bedarf
 
     left, right = st.columns(2)
-    with left.expander("Strombedarf in kWh", expanded=True):
+    with left.expander("Strombedarf in kWh", expanded=False):
         st.session_state["g0"] = st.number_input('G0 - Gewerbe allgemein:', step=500, value=0)
         st.session_state["g1"] = st.number_input('G1 - Gewerbe werktags 8-18 Uhr:', step=500, value=0)
         st.session_state["g2"] = st.number_input('G2 - Gewerbe mit starkem bis überwiegendem Verbrauch in den Abendstunden:', step=500, value=0)
@@ -102,7 +102,7 @@ def app():
                             "l2": st.session_state["l2"],
                             "h0": st.session_state["h0"]}
     
-    with right.expander("Wärmebedarf in kWh", expanded=True):
+    with right.expander("Wärmebedarf in kWh", expanded=False):
         st.session_state["efh"] = st.number_input('EFH: Einfamilienhaus:', step=500, value=0)
         st.session_state["mfh"] = st.number_input('MFH: Mehrfamilienhaus:', step=500, value=0)
         st.session_state["gmk"] = st.number_input('GMK: Metall und Kfz', step=500, value=0)
