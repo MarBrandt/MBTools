@@ -81,10 +81,12 @@ def app():
             st.session_state["Wetterdaten"]["Datum"] = st.session_state["date_time_index"]
             st.session_state["Wetterdaten"].set_index("Datum")
             st.session_state["Wetterdaten"]["Windgeschwindigkeit in m/s"] = st.session_state["Winddaten"]["wind_speed"]
-            st.session_state["Wetterdaten"].rename(columns={"irradiance_diffuse": "Diffusstrahlung in kW/m²",
-                                                            "irradiance_direct": "Direktstrahlung in kW/m²",
+            st.session_state["Wetterdaten"]["irradiance_diffuse"] = st.session_state["Wetterdaten"]["irradiance_diffuse"]*1000
+            st.session_state["Wetterdaten"]["irradiance_direct"] = st.session_state["Wetterdaten"]["irradiance_direct"]*1000
+            st.session_state["Wetterdaten"].rename(columns={"irradiance_diffuse": "Diffusstrahlung in W/m²",
+                                                            "irradiance_direct": "Direktstrahlung in W/m²",
                                                             "temperature": "Umgebungstemperatur in °C"}, inplace=True)
-            
+                        
             st.session_state["Umgebungstemperatur"] = pd.DataFrame({'Umgebungstemperatur': st.session_state["Wetterdaten"]['Umgebungstemperatur in °C']})
             
         if "Umgebungstemperatur" in st.session_state:
