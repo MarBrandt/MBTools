@@ -110,7 +110,7 @@ def get_solar_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
 
 @st.cache(show_spinner=False)
 def get_wind_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
-                   dataset='merra2', capacity=1.0, height=100,
+                   dataset='merra2', capacity=1.0, height=10,
                    turbine='Enercon E82 2000'):
     '''    
     Parameter:
