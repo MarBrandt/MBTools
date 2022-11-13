@@ -76,7 +76,7 @@ def app():
                 for index, row in df.iterrows():
                     progress_bar.progress(0 + i/len(hnr))
                     try:
-                        coordinates = functions.location_coordinates("{}, {} {}".format(st.session_state["city"], row[street_column], row[hnr_column]), country)
+                        coordinates = functions.find_location("{}, {} {}".format(st.session_state["city"], row[street_column], row[hnr_column]), country)
                         df["longitude"][i] = coordinates.longitude
                         df["latitude"][i] = coordinates.latitude
                         i += 1
