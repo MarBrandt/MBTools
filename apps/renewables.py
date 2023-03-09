@@ -20,7 +20,7 @@ def app():
     st.markdown("<h1 style='text-align: center; color: red;'>Rechner für erneuerbare Energien</h1>", unsafe_allow_html=True)
     
     st.markdown("<center>Mit Hilfe dieser App kannst du orts- und jahresbezogene Erträge sowie Randdaten für folgende Anlagen berechnen und die Ergebnisse herunterladen</center>", unsafe_allow_html=True)
-    st.markdown("<center>Für die Verwendung im Kalkulationstool oder TOP-Energy ist das Jahr 2019 voreingestellt</center>", unsafe_allow_html=True)
+    st.markdown("<center>Für die Verwendung im Kalkulationstool oder TOP-Energy ist das Jahr 2004 voreingestellt</center>", unsafe_allow_html=True)
     st.markdown("""
                     <ul style='list-style-type:disc'>
                       <li>Lade die Wetterdaten für den gewünschten Ort und das entsprechende Jahr herunter</li>
