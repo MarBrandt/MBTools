@@ -170,9 +170,9 @@ def app():
             st.session_state["a1"] = 2.270
             st.session_state["a2"] = 0.0181
         else:
-            st.session_state["eta_k0"] = 0.581
-            st.session_state["a1"] = 0.339
-            st.session_state["a2"] = 0.009     
+            st.session_state["eta_k0"] = 0.687
+            st.session_state["a1"] = 0.613
+            st.session_state["a2"] = 0.003
             
         st.session_state["ST_Temperaturniveau"] = col_2.selectbox('Temperaturniveau der Einspeisung', options=["Vorlauftemperatur", "festgesetzte Temperatur"])
         
