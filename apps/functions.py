@@ -331,7 +331,7 @@ def bdew_heat_demand(year, building_class, ann_demands_per_type, holidays, tempe
 
 def bdew_electricity_demand(year, ann_el_demand_per_sector, holidays):
     e_slp = bdew.ElecSlp(year, holidays=holidays)
-    demand = e_slp.get_profile(ann_el_demand_per_sector, dyn_function_h0=True).resample("H").mean()
+    demand = e_slp.get_profile(ann_el_demand_per_sector).resample("H").mean()
     return demand
 
 

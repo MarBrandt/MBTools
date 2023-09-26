@@ -100,7 +100,7 @@ def app():
                             "l0": st.session_state["l0"],
                             "l1": st.session_state["l1"],
                             "l2": st.session_state["l2"],
-                            "h0": st.session_state["h0"]}
+                            "h0_dyn": st.session_state["h0"]}
     
     with right.expander("Wärmebedarf in kWh", expanded=False):
         st.session_state["efh"] = st.number_input('EFH: Einfamilienhaus:', step=500, value=0)
