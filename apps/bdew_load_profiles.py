@@ -43,7 +43,7 @@ def app():
     # Linke Seite
     country = sel_col.selectbox('Land', options=countries.columns)
     st.session_state["city"] = sel_col.text_input('Stadt:',)
-    st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2022, value=2004)
+    st.session_state["year"] = sel_col.slider('Jahr:', min_value=1980, max_value=2023, value=2004)
           
     st.session_state["Koordinaten"] = functions.location_coordinates(st.session_state["city"], country)
     
