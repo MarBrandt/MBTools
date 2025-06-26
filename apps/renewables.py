@@ -261,7 +261,7 @@ def app():
 # %% Windkraft
     with st.expander("Windkraft", expanded=False):
         st.session_state["wind_type"] = st.selectbox('Turbinentyp:', options=list(turbine_model[0]))
-        st.session_state["wind_height"] = st.number_input('Nabenhöhe [m]:', step=5, value=100, min_value=10, max_value=150)
+        st.session_state["wind_height"] = st.number_input('Nabenhöhe [m]:', step=5, value=100, min_value=10, max_value=300)
         st.session_state["wind_power"] = st.number_input('Nennleistung [kW]:', step=100, value=2000)
         
         col1, col2, col3 , col4, col5 = st.columns(5)
