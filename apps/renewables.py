@@ -166,9 +166,9 @@ def app():
         st.session_state["sol_thermal_area"] = col_2.number_input('Verfügbare Fläche insgesamt:', step=100, value=1)
         st.session_state["sol_thermal_area_usage"] = col_2.slider('Flächennutzungsgrad Solarthermie [%]:', min_value=0, max_value=100, step=10, value=100)/100
         if st.session_state["sol_thermal_type"] == 'Flachkollektor':
-            st.session_state["eta_k0"] = 0.773
-            st.session_state["a1"] = 2.270
-            st.session_state["a2"] = 0.0181
+            st.session_state["eta_k0"] = 0.749
+            st.session_state["a1"] = 3.542
+            st.session_state["a2"] = 0.042
         else:
             st.session_state["eta_k0"] = 0.687
             st.session_state["a1"] = 0.613
