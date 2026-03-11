@@ -271,7 +271,7 @@ def st_power(umgebungstemperatur, vorlauftemperatur, ruecklauftemperatur,
 @st.cache_data
 def location_coordinates(city, country):
     geolocator = Nominatim(user_agent="mbtools_app_001")
-    coordinates = geolocator.geocode(city+','+ country)
+    coordinates = geolocator.geocode(city+','+ country, timeout=10)
     return coordinates
 
 # @st.cache
