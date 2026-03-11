@@ -8,6 +8,7 @@ import datetime
 import matplotlib.pyplot as plt
 
 import streamlit as st
+from streamlit_folium import st_folium
 
 import apps.functions as functions
 
@@ -38,7 +39,8 @@ def app():
         m = functions.create_map(city=st.session_state["city"],
                                   latitude=st.session_state["Ortschaft"].latitude,
                                   longitude=st.session_state["Ortschaft"].longitude)
-        disp_col.write(m)
+        with disp_col:
+            st_folium(m, width=700, height=350)
         
         
 # %% Einlesen der Adressen
