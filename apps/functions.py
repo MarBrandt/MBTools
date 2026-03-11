@@ -5,7 +5,7 @@ Created on Wed Feb 16 15:29:36 2022
 @author: Markus Brandt
 """
 
-from io import BytesIO
+from io import BytesIO, StringIO
 import pandas as pd
 import numpy as np
 
@@ -28,7 +28,7 @@ from folium.features import LatLngPopup
 
 # %% Funktionen
 
-@st.cache
+@st.cache_data
 def convert_df(df):
     return df.to_csv().encode('utf-8')
 
@@ -104,11 +104,11 @@ def get_solar_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
     }
     r = s.get(url, params=args)
     parsed_response = json.loads(r.text)
-    data = pd.read_json(json.dumps(parsed_response['data']), orient='index')
+    data = pd.read_json(StringIO(json.dumps(parsed_response['data'])), orient='index')
     return data
 
 
-@st.cache(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def get_wind_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
                    dataset='merra2', capacity=1.0, height=10,
                    turbine='Enercon E82 2000'):
@@ -167,7 +167,7 @@ def get_wind_data(lat=51, lon=9, date_from='2019-01-01', date_to='2019-12-31',
     }
     r = s.get(url, params=args)
     parsed_response = json.loads(r.text)
-    data = pd.read_json(json.dumps(parsed_response['data']), orient='index')
+    data = pd.read_json(StringIO(json.dumps(parsed_response['data'])), orient='index')
     return data
 
 
@@ -196,7 +196,7 @@ def irradiance_global(irradiance_direct, irradiance_diffuse, tilt, albedo=0.2):
     return irradiation
 
 
-@st.cache
+@st.cache_data
 def pv_power(irradiance_direct, irradiance_diffuse, eta_pv=0.17,
              albedo=0.2, tilt=35, eta_wr=0.98, system_loss=0.17):
     '''
@@ -226,7 +226,7 @@ def pv_power(irradiance_direct, irradiance_diffuse, eta_pv=0.17,
     return irradiance_global(irradiance_direct, irradiance_diffuse, tilt) * (1-system_loss) * eta_pv * eta_wr
 
 
-@st.cache
+@st.cache_data
 def vorlauftemperatur(x,y,umgebungstemperatur):
     '''
     paramter
@@ -255,7 +255,7 @@ def vorlauftemperatur(x,y,umgebungstemperatur):
             t_u.append(t)
     return np.polyval(fit,t_u)
 
-@st.cache
+@st.cache_data
 def st_power(umgebungstemperatur, vorlauftemperatur, ruecklauftemperatur,
              irradiance_direct, irradiance_diffuse, tilt,
              eta_k0=0.73, a1=1.7, a2=0.016):
@@ -268,7 +268,7 @@ def st_power(umgebungstemperatur, vorlauftemperatur, ruecklauftemperatur,
     return E_global * eta_k
 
 
-@st.cache
+@st.cache_data
 def location_coordinates(city, country):
     geolocator = Nominatim(user_agent="mbtools_app_001")
     coordinates = geolocator.geocode(city+','+ country)
@@ -300,7 +300,7 @@ def to_excel(df):
 def bdew_heat_demand(year, building_class, ann_demands_per_type, holidays, temperature):
     demand = pd.DataFrame(
         index=pd.date_range(
-            datetime.datetime(year, 1, 1, 0), periods=len(temperature), freq="H"
+            datetime.datetime(year, 1, 1, 0), periods=len(temperature), freq="h"
         )
     )
     
@@ -331,7 +331,7 @@ def bdew_heat_demand(year, building_class, ann_demands_per_type, holidays, tempe
 
 def bdew_electricity_demand(year, ann_el_demand_per_sector, holidays):
     e_slp = bdew.ElecSlp(year, holidays=holidays)
-    demand = e_slp.get_profile(ann_el_demand_per_sector).resample("H").mean()
+    demand = e_slp.get_scaled_power_profiles(ann_el_demand_per_sector).resample("h").mean()
     return demand
 
 
