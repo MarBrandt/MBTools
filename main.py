@@ -5,9 +5,9 @@ Created on Sat Feb 12 10:23:19 2022
 @author: Markus Brandt
 """
 
-import PIL  # Paket zum Laden eines png für das favicon
+from PIL import Image  # Paket zum Laden eines png für das favicon
 import streamlit as st
-page_icon = PIL.Image.open('pictures/GPJoule_Logo.png')
+page_icon = Image.open('pictures/GPJoule_Logo.png')
 st.set_page_config(page_title='MB Tools',
                    page_icon=page_icon,
                    layout="wide",
