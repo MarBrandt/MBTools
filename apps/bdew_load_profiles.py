@@ -8,6 +8,7 @@ import datetime
 import matplotlib.pyplot as plt
 
 import streamlit as st
+from streamlit_folium import st_folium
 
 import apps.functions as functions
 
@@ -49,7 +50,7 @@ def app():
     
     st.session_state["date_time_index"] = pd.date_range(start="{}-01-01".format(st.session_state["year"]),
                                                         end="{}-12-31 23:00".format(st.session_state["year"]),
-                                                        freq="H")
+                                                        freq="h")
     
     sel_col.markdown("<h3 style='text-align: center; color: red;'>Die Koordinaten von {} lauten:</h3>".format(st.session_state["city"]), unsafe_allow_html=True)
     sel_col.markdown("""
@@ -65,11 +66,12 @@ def app():
     m = functions.create_map(city=st.session_state["city"],
                               latitude=st.session_state["Koordinaten"].latitude,
                               longitude=st.session_state["Koordinaten"].longitude)
-    disp_col.write(m)
+    with disp_col:
+            st_folium(m, width=700, height=350)
     
     st.session_state["date_time_index"] = pd.date_range(start="{}-01-01".format(st.session_state["year"]),
                                                         end="{}-12-31 23:00".format(st.session_state["year"]),
-                                                        freq="H")
+                                                        freq="h")
 
 
 # %% Eingabe Bedarf
