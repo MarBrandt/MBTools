@@ -19,7 +19,7 @@ import json
 
 import streamlit as st
 
-from geopy.geocoders import Nominatim
+from geopy.geocoders import Nominatim, OpenCage
 
 import folium
 from folium.features import LatLngPopup
@@ -270,7 +270,7 @@ def st_power(umgebungstemperatur, vorlauftemperatur, ruecklauftemperatur,
 
 @st.cache_data
 def location_coordinates(city, country):
-    geolocator = Nominatim(user_agent="mbtools_app_001")
+    geolocator = OpenCage(api_key="2c498a4de17a4cdb885695272a1dc15f")
     coordinates = geolocator.geocode(city+','+ country, timeout=10)
     return coordinates
 
@@ -336,6 +336,6 @@ def bdew_electricity_demand(year, ann_el_demand_per_sector, holidays):
 
 
 def find_location(city, country):                                               # same function as location_coordinates but without streamlit cache -> to hide operation in app
-    geolocator = Nominatim(user_agent="my_user_agent")
-    coordinates = geolocator.geocode(city+','+ country)
+    geolocator = OpenCage(api_key="2c498a4de17a4cdb885695272a1dc15f")
+    coordinates = geolocator.geocode(city+','+ country, timeout=10)
     return coordinates
